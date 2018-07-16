@@ -5,10 +5,10 @@ const path = require("path");
 const config = require("./config.json");
   
 const client = new discord.Client();
-const log = console.log.bind(console);
+const logger = console.log.bind(console);
   
 client.on('ready', () => {
-    log(`Bot Connected!`);
+    log(`Bot Connected.`);
     
     let channel = client.channels.find("name", config.channelName);
     fileWatcher(channel);
@@ -20,14 +20,21 @@ let fileWatcher = (channel) => {
     });
 
     watcher
-        .on('ready', () => { log('Initial scan complete. Ready for changes.'); })
-        .on('error', error => { log(`Error occured - ', ${error}`); })
+        .on('ready', () => { 
+            log('Initial scan complete. Ready for changes.');
+        })
+        .on('error', error => { 
+            log(`Error occured - ', ${error}`);
+        })
         .on('add', file => { 
-            let message = `${path.basename(file)} Added`;
-            log(message);
-            
+            let message = `${path.basename(file)}`;
             channel.send(message);
         });
+}
+
+let log = (message) => {
+    let date = new Date();
+    logger(`${date}: ${message}`);
 }
     
 client.login(config.token);
