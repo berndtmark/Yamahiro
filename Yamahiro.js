@@ -5,14 +5,19 @@ const path = require("path");
 const config = require("./config.json");
   
 const client = new discord.Client();
-const logger = console.log.bind(console);
-  
+
 client.on('ready', () => {
-    log(`Bot Connected.`);
-    
+    console.log(`Connected!`);
+    init();
+});
+
+client.on('error', (e) => console.error(`Discord error: ${e}`));
+client.on('warn', (e) => console.warn(`Discord warning: ${e}`));
+
+let init = () => {
     let channel = client.channels.find("name", config.channelName);
     fileWatcher(channel);
-});
+}
 
 let fileWatcher = (channel) => {
     const watcher = chokidar.watch(config.dir, {
@@ -21,20 +26,15 @@ let fileWatcher = (channel) => {
 
     watcher
         .on('ready', () => { 
-            log('Initial scan complete. Ready for changes.');
+            console.log('Initial scan complete.');
         })
         .on('error', error => { 
-            log(`Error occured - ', ${error}`);
+            console.warn(`File watch error: ', ${error}`);
         })
         .on('add', file => { 
             let message = `${path.basename(file)}`;
             channel.send(message);
         });
-}
-
-let log = (message) => {
-    let date = new Date();
-    logger(`${date}: ${message}`);
 }
     
 client.login(config.token);
