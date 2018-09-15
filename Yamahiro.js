@@ -1,25 +1,11 @@
-
-const discord = require('discord.js');
+const Slimbot = require('slimbot');
 const chokidar = require('chokidar');
 const path = require("path");
 const config = require("./config.json");
-  
-const client = new discord.Client();
 
-client.on('ready', () => {
-    console.log(`Connected!`);
-    init();
-});
+const slimbot = new Slimbot(config.token);
 
-client.on('error', (e) => console.error(`Discord error: ${e}`));
-client.on('warn', (e) => console.warn(`Discord warning: ${e}`));
-
-let init = () => {
-    let channel = client.channels.find("name", config.channelName);
-    fileWatcher(channel);
-}
-
-let fileWatcher = (channel) => {
+let initFileWatcher = () => {
     const watcher = chokidar.watch(config.dir, {
         ignored: /[\/\\]\./, persistent: true, ignoreInitial: true
     });
@@ -33,8 +19,14 @@ let fileWatcher = (channel) => {
         })
         .on('add', file => { 
             let message = `${path.basename(file)}`;
-            channel.send(message);
+            slimbot.sendMessage(config.chatId, message);
         });
 }
-    
-client.login(config.token);
+
+let startUp = () => {
+    console.log(`Connected!`);
+    initFileWatcher();
+}
+
+startUp();
+slimbot.startPolling();
